@@ -1,0 +1,344 @@
+@import url('https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro&family=Poppins:wght@300&family=Ubuntu&display=swap'); /*Importa fonte do site "fonts google"*/
+/*Fonte menu ('Poppins', sans-serif;)*/
+/*Fonte pika usada na legenda dos itens ('Kdam Thmor Pro', sans-serif;)*/
+/*Fonte ofertas ('Ubuntu', sans-serif;)*/
+
+body{
+    background-image: url(../IMG/fundo.jpg);
+}
+*{
+    margin: 0;
+    padding: 0;
+    /*Tirar o espaçamento predefinido do html*/
+}
+
+/*     Cabecalho     */
+.cabecalho{
+    background-color: black;
+    width: 100%;
+    height: 90px;
+}
+
+#logo{
+    float: left;
+    margin-left: 35px;
+    padding-bottom: 10px;
+}
+
+/*    MENU    */
+.menu{
+    float: left;
+    margin-left: 10px; /* Espaço entre cada opção do menu*/
+    margin-top: 35px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dpmenu{
+    margin-left: 160px;
+}
+
+.dpmenu ul{
+    list-style-type: none;
+    padding: 0;
+    position: absolute;
+    background-color: black;
+}
+
+.dpmenu ul li{
+    display: inline;
+    position: relative;
+}
+
+.dpmenu ul li a{
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    transition: background .3s; /* .3 é abreviação de 0.3*/
+}
+
+.dpmenu ul li a:hover{
+    color: white;
+    text-decoration: none;
+    background-color: rgb(117, 0, 0);
+}
+
+/*-SUB MENU-*/
+.dpmenu ul ul{
+    display: none;               /*none = deixa invisível*/
+    position: absolute;
+    width: 150px;
+    left: 0;
+    margin-top: 5px;
+}
+
+.dpmenu ul li:hover ul{          /*ao passar o mouse*/
+    display: block;              /*block = deixa vísivel*/
+}
+
+.dpmenu ul ul li a{
+    display: block;
+    
+}
+
+
+/*    BANNER    */
+.slider{                   /*tamanho que os banners ocuparão no site*/
+    width: 80%;
+    height: 450px;
+    overflow: hidden;   /*tudo que estiver fora do tamanho, ficará escondido*/
+    margin-left: 10%;
+    margin-top: 70px;
+}
+
+.slides{                    /*BANERS*/
+    width: 400%;
+    height: 450px;
+    display: flex;     /*um ao lado do outro*/
+}
+
+.slides input{
+    display: none;
+}
+
+.slide{
+    width: 25%;             /*cada banner ocupará 25% da largura, pois estão juntos (100% / 4 = 25%)*/
+    position: relative;
+    transition: .5s;        /*Transição do banner*/
+}
+
+.slide img{
+    width: 100%;
+    height: 100%;
+}
+
+.manual-navigation{
+    position: absolute;
+    display: flex;
+    margin-top: -4%;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.manual-btn{
+    border: 2px solid rgb(255, 255, 255);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .5s;        /*transição botão*/
+    margin: 10px;
+    display: none;
+}
+
+.manual-btn:hover{
+    background-color: white;
+}
+
+#radio1:checked ~ .first{       
+    margin-left: 0;
+}
+
+#radio2:checked ~ .first{       /*Quando radio1 estiver checked (selecionado), mover a segunda imagem 25%(o tamanho de todas as imagens) para esquerda*/
+    margin-left: -25%;
+}
+
+#radio3:checked ~ .first{
+    margin-left: -50%;
+}
+
+#radio4:checked ~ .first{
+    margin-left: -75%;
+}
+
+.navigation-auto div{
+    border: 2px solid white;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .5s;
+    margin: 10px;
+}
+
+.navigation-auto{
+    position: absolute;
+    display: flex;
+    margin-top: 396px;
+    left: 50%;
+    transform: translate(-50%);
+    width: 800px;
+    justify-content: center ;
+}
+
+#radio1:checked ~ .navigation-auto .auto-btn1{
+    background-color: white;
+}
+
+#radio2:checked ~ .navigation-auto .auto-btn2{
+    background-color: white;
+}
+
+#radio3:checked ~ .navigation-auto .auto-btn3{
+    background-color: white;
+}
+
+#radio4:checked ~ .navigation-auto .auto-btn4{
+    background-color: white;
+}
+
+
+/*    Tela inicial    */
+#fundoinicio{
+    background-color:white;
+    width: 80%;
+    height: 2700px;
+    margin-left: 10%;
+    padding-top: 50px;
+}
+
+#fundoinicio h1{
+    text-align: center;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.destaque{
+    width: 80%;
+    height: 475px;
+    margin-left: 10%;
+    margin-top: 200px;
+    border: none;
+}
+
+legend{
+    font-size: 50px;
+    font-family: 'Ubuntu', sans-serif;
+    text-align: center;
+}
+
+.itemInicio{          /*margem da legenda, preço e imagem do tênis/ITEM*/
+    width: 25%;
+    height: 95%;
+    margin-left: 6%;
+    margin-top: 5%;
+    float: left;
+    color: black;
+    text-align: center;
+    font-family: 'Kdam Thmor Pro', sans-serif;
+    border: 2px solid black;
+}
+
+.imgItemInicio{    /*Imagem do tênis/ITEM*/
+    height: 70%;
+    width: 100%;
+
+}
+
+.legendaItemInicio{  /*Legenda do item*/
+    margin-top: 2.5%;
+    display: block;
+}
+
+.precoItemInicio{    /*preço do item*/
+    margin-top: -3%;
+    display: block;
+}
+
+
+
+/*    final da pag    */
+.final{
+    float: left;
+    width: 100%;
+    height: 300px; 
+    background-color: black;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+
+.final h1{
+    padding-top: 20px;
+    text-align: center;
+}
+
+
+
+
+/*      tênis/roupas/skates     */
+h1{
+    text-align: center;
+}
+.fundoitens{
+    background-color:white;
+    width: 80%;
+    height: 2000px;
+    margin-left: 10%;
+    padding-top: 50px;
+}
+.item{          /*margem da legenda, preço e imagem do tênis/ITEM*/
+    width: 20%;
+    height: 450px;
+    margin-top: 10%;
+    margin-left: 10%;
+    float: left;
+    color: black;
+    text-align: center;
+    font-family: 'Kdam Thmor Pro', sans-serif;
+    border: 2px solid black;
+}
+
+.imgItem{    /*Imagem do tênis/ITEM*/
+    height: 75%;
+    width: 100%;
+
+}
+.legendaItem{  /*Legenda do item*/
+    margin-top: 2.5%;
+    display: block;
+}
+.precoItem{    /*preço do item*/
+    margin-top: -3%;
+    display: block;
+}
+
+
+
+/*FOMULARIO*/
+
+#fundologin{
+    background-color: black;
+    background-image: url(../IMG/LOGO.png);
+    color: white;
+    width: 350px;
+    height: 250px;
+    border: solid 4px rgb(117, 0, 0);
+    border-radius: 30px;
+    margin-left: 750px;
+    margin-top: 250px;
+    padding-top: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+#fundologin h1{
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.campo{
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+#btlogin{
+    margin-left: 50%;
+    margin-top: 10px;
+    transform: translate(-50%);
+    font-size: 17px;
+}
+
+#email, #senha{
+    width: 250px;
+    height: 20px;
+    font-size: 15px;
+    margin-left: 5px;
+}
