@@ -1,3 +1,4 @@
+import { formatPrice } from "../utils/assets";
 import type { CategorySlug, Product } from "./catalog";
 import { getCategory } from "./catalog";
 
@@ -31,10 +32,7 @@ export function getSku(product: Product): string {
 
 export function getInstallments(price: number, times = 3): string {
   const value = price / times;
-  return `${times}x de ${value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  })} sem juros`;
+  return `${times}x de ${formatPrice(value)} sem juros`;
 }
 
 export function getDescription(product: Product): string {

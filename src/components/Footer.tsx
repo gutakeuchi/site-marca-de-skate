@@ -1,6 +1,8 @@
 import { Box, Container, Grid, Link, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { assetUrl } from "../utils/assets";
+import { SITE_NAME } from "../constants";
+import { categoryPath } from "../utils/paths";
+import BrandLogo from "./BrandLogo";
 
 const owners = [
   "Gabriel dos Santos",
@@ -10,10 +12,10 @@ const owners = [
 ];
 
 const shopLinks = [
-  { label: "Camisas", to: "/categoria/masculino-camisas" },
-  { label: "Tênis Nike SB", to: "/categoria/tenis-nike" },
-  { label: "Shapes", to: "/categoria/shape" },
-  { label: "Skate completo", to: "/categoria/skate" },
+  { label: "Camisetas", slug: "masculino-camisas" },
+  { label: "Tênis Nike SB", slug: "tenis-nike" },
+  { label: "Shapes", slug: "shape" },
+  { label: "Skate completo", slug: "skate" },
 ];
 
 export default function Footer() {
@@ -33,14 +35,11 @@ export default function Footer() {
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Box
-              component="img"
-              src={assetUrl("IMG/inicio/LOGO.png")}
-              alt="Logo Wolf Board"
-              sx={{ width: 88, height: 88, objectFit: "contain", mb: 2 }}
-            />
+            <Box sx={{ mb: 2 }}>
+              <BrandLogo size={88} />
+            </Box>
             <Typography variant="h5" sx={{ mb: 1 }}>
-              Wolf Board
+              {SITE_NAME}
             </Typography>
             <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.65)", maxWidth: 280 }}>
               Skate shop com shapes, tênis e streetwear. Menos vitrine corporativa, mais sessão.
@@ -54,9 +53,9 @@ export default function Footer() {
             <Stack spacing={1}>
               {shopLinks.map((link) => (
                 <Link
-                  key={link.to}
+                  key={link.slug}
                   component={RouterLink}
-                  to={link.to}
+                  to={categoryPath(link.slug)}
                   underline="hover"
                   color="inherit"
                   sx={{ fontSize: 14, color: "rgba(255,255,255,0.75)" }}

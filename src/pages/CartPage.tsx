@@ -1,36 +1,29 @@
-import {
-  Box,
-  Button,
-  Container,
-  Divider,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, Divider, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { useCart } from "../cart";
-import { MinusIcon, PlusIcon } from "../components/Icons";
-import { assetUrl, formatPrice } from "../utils/assets";
+import EmptyState from "../components/EmptyState";
+import ProductImage from "../components/ProductImage";
+import QtyStepper from "../components/QtyStepper";
+import { usePageTitle } from "../hooks/usePageTitle";
+import { formatPrice } from "../utils/assets";
+import { productPath } from "../utils/paths";
 
 export default function CartPage() {
   const { items, total, updateQty, removeItem, clear } = useCart();
+  usePageTitle("Carrinho");
 
   if (items.length === 0) {
     return (
-      <Container maxWidth="sm" sx={{ py: 12, textAlign: "center" }}>
-        <Typography variant="subtitle2" sx={{ color: "primary.main", mb: 1 }}>
-          Carrinho
-        </Typography>
-        <Typography variant="h3" sx={{ mb: 2 }}>
-          Tá vazio
-        </Typography>
-        <Typography sx={{ color: "text.secondary", mb: 4 }}>
-          Escolhe um shape, um tênis ou uma tee e volta aqui.
-        </Typography>
-        <Button variant="contained" component={RouterLink} to="/">
-          Ir para a loja
-        </Button>
-      </Container>
+      <EmptyState
+        eyebrow="Carrinho"
+        title="Tá vazio"
+        description="Escolhe um shape, um tênis ou uma tee e volta aqui."
+        action={
+          <Button variant="contained" component={RouterLink} to="/">
+            Ir para a loja
+          </Button>
+        }
+      />
     );
   }
 
@@ -49,29 +42,15 @@ export default function CartPage() {
             <Stack direction="row" spacing={2} alignItems="center">
               <Box
                 component={RouterLink}
-                to={`/produto/${item.productId}`}
-                sx={{
-                  width: 92,
-                  height: 92,
-                  bgcolor: "#f3f3f3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  p: 1,
-                  flexShrink: 0,
-                }}
+                to={productPath(item.productId)}
+                sx={{ width: 92, height: 92, flexShrink: 0, display: "block" }}
               >
-                <Box
-                  component="img"
-                  src={assetUrl(item.image)}
-                  alt={item.name}
-                  sx={{ width: "100%", height: "100%", objectFit: "contain" }}
-                />
+                <ProductImage src={item.image} alt={item.name} height={76} padding={1} />
               </Box>
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                 <Typography
                   component={RouterLink}
-                  to={`/produto/${item.productId}`}
+                  to={productPath(item.productId)}
                   sx={{ color: "#fff", textDecoration: "none", fontWeight: 600 }}
                 >
                   {item.name}
@@ -81,28 +60,12 @@ export default function CartPage() {
                 </Typography>
                 <Typography sx={{ mt: 0.5 }}>{formatPrice(item.price)}</Typography>
               </Box>
-              <Stack direction="row" alignItems="center">
-                <IconButton
-                  color="inherit"
-                  aria-label="Diminuir quantidade"
-                  onClick={() => updateQty(item.productId, item.size, item.qty - 1)}
-                >
-                  <MinusIcon fontSize="small" />
-                </IconButton>
-                <Typography sx={{ width: 24, textAlign: "center" }}>{item.qty}</Typography>
-                <IconButton
-                  color="inherit"
-                  aria-label="Aumentar quantidade"
-                  onClick={() => updateQty(item.productId, item.size, item.qty + 1)}
-                >
-                  <PlusIcon fontSize="small" />
-                </IconButton>
-              </Stack>
-              <Button
-                color="inherit"
-                onClick={() => removeItem(item.productId, item.size)}
-                sx={{ display: { xs: "none", sm: "inline-flex" } }}
-              >
+              <QtyStepper
+                value={item.qty}
+                onChange={(qty) => updateQty(item.productId, item.size, qty)}
+                min={0}
+              />
+              <Button color="inherit" onClick={() => removeItem(item.productId, item.size)}>
                 Remover
               </Button>
             </Stack>

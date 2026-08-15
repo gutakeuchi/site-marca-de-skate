@@ -17,17 +17,15 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { isLoggedIn, logout } from "../auth";
 import { useCart } from "../cart";
-import { categories } from "../data/catalog";
-import { assetUrl } from "../utils/assets";
+import { SITE_NAME } from "../constants";
+import { groupedCategories, type NavGroup } from "../data/catalog";
+import { categoryPath } from "../utils/paths";
+import BrandLogo from "./BrandLogo";
 import { BagIcon, ExpandMoreIcon, LoginIcon, LogoutIcon, MenuIcon } from "./Icons";
-
-const LOGO_SRC = assetUrl("IMG/inicio/LOGO.png");
-const groups = ["Masculino", "Feminino", "Tênis", "Skate"] as const;
-type Group = (typeof groups)[number];
 
 export default function Header() {
   const navigate = useNavigate();
@@ -36,22 +34,15 @@ export default function Header() {
   const [loggedIn, setLoggedIn] = useState(() => isLoggedIn());
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<{
-    group: Group;
+    group: NavGroup;
     element: HTMLElement;
   } | null>(null);
 
   useEffect(() => {
     setLoggedIn(isLoggedIn());
+    setMobileOpen(false);
+    setMenuAnchor(null);
   }, [location]);
-
-  const groupedCategories = useMemo(
-    () =>
-      groups.map((group) => ({
-        group,
-        items: categories.filter((category) => category.group === group),
-      })),
-    [],
-  );
 
   function handleLogout() {
     logout();
@@ -78,18 +69,11 @@ export default function Header() {
           <MenuIcon />
         </IconButton>
 
-        <Box
-          component={RouterLink}
-          to="/"
-          aria-label="Wolf Board - página inicial"
-          sx={{ display: "flex", alignItems: "center", mr: { md: 3 } }}
-        >
-          <Box
-            component="img"
-            src={LOGO_SRC}
-            alt="Logo Wolf Board"
-            sx={{ width: { xs: 52, md: 64 }, height: { xs: 52, md: 64 }, objectFit: "contain" }}
-          />
+        <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          <BrandLogo size={52} />
+        </Box>
+        <Box sx={{ display: { xs: "none", md: "flex" }, mr: 3 }}>
+          <BrandLogo size={64} />
         </Box>
 
         <Stack
@@ -106,6 +90,7 @@ export default function Header() {
                   setMenuAnchor({ group, element: event.currentTarget })
                 }
                 aria-haspopup="true"
+                aria-expanded={menuAnchor?.group === group}
                 sx={{
                   fontSize: 15,
                   px: 1.5,
@@ -123,7 +108,7 @@ export default function Header() {
                   <MenuItem
                     key={item.slug}
                     component={RouterLink}
-                    to={`/categoria/${item.slug}`}
+                    to={categoryPath(item.slug)}
                     onClick={() => setMenuAnchor(null)}
                   >
                     {item.title}
@@ -177,13 +162,10 @@ export default function Header() {
         PaperProps={{ sx: { width: 320, bgcolor: "#0a0a0a", color: "#fff" } }}
       >
         <Box sx={{ p: 2.5 }}>
-          <Box
-            component="img"
-            src={LOGO_SRC}
-            alt="Logo Wolf Board"
-            sx={{ width: 72, height: 72, objectFit: "contain", mb: 1 }}
-          />
-          <Typography variant="h6">Wolf Board</Typography>
+          <BrandLogo size={72} to={false} />
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {SITE_NAME}
+          </Typography>
         </Box>
         <Divider sx={{ borderColor: "rgba(255,255,255,0.12)" }} />
         {groupedCategories.map(({ group, items }) => (
@@ -202,7 +184,7 @@ export default function Header() {
                   <ListItemButton
                     key={item.slug}
                     component={RouterLink}
-                    to={`/categoria/${item.slug}`}
+                    to={categoryPath(item.slug)}
                     onClick={() => setMobileOpen(false)}
                     sx={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.08em" }}
                   >

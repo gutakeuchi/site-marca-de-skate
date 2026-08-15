@@ -28,3 +28,9 @@ img {
   width: max-content;
   animation: marquee 28s linear infinite;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

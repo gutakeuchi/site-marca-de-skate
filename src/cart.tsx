@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -41,58 +42,77 @@ function readCart(): CartItem[] {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => readCart());
 
-  function persist(next: CartItem[]) {
-    setItems(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  }
+  const persist = useCallback((updater: (current: CartItem[]) => CartItem[]) => {
+    setItems((current) => {
+      const next = updater(current);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
-  const value = useMemo<CartContextValue>(() => {
-    return {
-      items,
-      itemCount: items.reduce((sum, item) => sum + item.qty, 0),
-      total: items.reduce((sum, item) => sum + item.price * item.qty, 0),
-      addItem(product, size, qty) {
-        const next = [...items];
-        const index = next.findIndex(
+  const addItem = useCallback(
+    (product: Product, size: string, qty: number) => {
+      persist((current) => {
+        const index = current.findIndex(
           (item) => item.productId === product.id && item.size === size,
         );
         if (index >= 0) {
-          next[index] = { ...next[index], qty: next[index].qty + qty };
-        } else {
-          next.push({
+          return current.map((item, itemIndex) =>
+            itemIndex === index ? { ...item, qty: item.qty + qty } : item,
+          );
+        }
+        return [
+          ...current,
+          {
             productId: product.id,
             name: product.name,
             image: product.image,
             price: product.price,
             size,
             qty,
-          });
-        }
-        persist(next);
-      },
-      updateQty(productId, size, qty) {
-        persist(
-          items
-            .map((item) =>
-              item.productId === productId && item.size === size
-                ? { ...item, qty }
-                : item,
-            )
-            .filter((item) => item.qty > 0),
-        );
-      },
-      removeItem(productId, size) {
-        persist(
-          items.filter(
-            (item) => !(item.productId === productId && item.size === size),
-          ),
-        );
-      },
-      clear() {
-        persist([]);
-      },
-    };
-  }, [items]);
+          },
+        ];
+      });
+    },
+    [persist],
+  );
+
+  const updateQty = useCallback(
+    (productId: number, size: string, qty: number) => {
+      persist((current) =>
+        current
+          .map((item) =>
+            item.productId === productId && item.size === size ? { ...item, qty } : item,
+          )
+          .filter((item) => item.qty > 0),
+      );
+    },
+    [persist],
+  );
+
+  const removeItem = useCallback(
+    (productId: number, size: string) => {
+      persist((current) =>
+        current.filter((item) => !(item.productId === productId && item.size === size)),
+      );
+    },
+    [persist],
+  );
+
+  const clear = useCallback(() => persist(() => []), [persist]);
+
+  const value = useMemo<CartContextValue>(
+    () => ({
+      items,
+      itemCount: items.reduce((sum, item) => sum + item.qty, 0),
+      total: items.reduce((sum, item) => sum + item.price * item.qty, 0),
+      addItem,
+      updateQty,
+      removeItem,
+      clear,
+    }),
+    [items, addItem, updateQty, removeItem, clear],
+  );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

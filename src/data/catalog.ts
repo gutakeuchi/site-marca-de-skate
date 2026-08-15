@@ -1,11 +1,11 @@
 export const categories = [
-  { slug: 'masculino-camisas', title: 'Camisas masculinas', group: 'Masculino' },
-  { slug: 'masculino-calcas', title: 'Calças masculinas', group: 'Masculino' },
-  { slug: 'masculino-moletons', title: 'Moletons masculinos', group: 'Masculino' },
+  { slug: 'masculino-camisas', title: 'Camisetas', group: 'Masculino' },
+  { slug: 'masculino-calcas', title: 'Calças', group: 'Masculino' },
+  { slug: 'masculino-moletons', title: 'Moletons', group: 'Masculino' },
   { slug: 'masculino-bermudas', title: 'Bermudas', group: 'Masculino' },
-  { slug: 'feminino-camisas', title: 'Camisas femininas', group: 'Feminino' },
-  { slug: 'feminino-calcas', title: 'Calças femininas', group: 'Feminino' },
-  { slug: 'feminino-moletons', title: 'Moletons femininos', group: 'Feminino' },
+  { slug: 'feminino-camisas', title: 'Camisetas', group: 'Feminino' },
+  { slug: 'feminino-calcas', title: 'Calças', group: 'Feminino' },
+  { slug: 'feminino-moletons', title: 'Moletons', group: 'Feminino' },
   { slug: 'feminino-cropped', title: 'Cropped', group: 'Feminino' },
   { slug: 'tenis-adidas', title: 'Adidas', group: 'Tênis' },
   { slug: 'tenis-vans', title: 'Vans', group: 'Tênis' },
@@ -19,6 +19,14 @@ export const categories = [
   { slug: 'rodas', title: 'Rodas', group: 'Skate' },
   { slug: 'rolamento', title: 'Rolamento', group: 'Skate' },
 ] as const;
+
+export const navGroups = ["Masculino", "Feminino", "Tênis", "Skate"] as const;
+export type NavGroup = (typeof navGroups)[number];
+
+export const groupedCategories = navGroups.map((group) => ({
+  group,
+  items: categories.filter((category) => category.group === group),
+}));
 
 export type CategorySlug = (typeof categories)[number]['slug'];
 
@@ -1229,7 +1237,7 @@ export const products: Product[] = [
   }
 ];
 
-export const homeHighlights: Product[] = [
+const highlightFallbacks: Product[] = [
   {
     id: 9001,
     name: 'Tênis Adidas Tyshawn Low Black White',
@@ -1253,7 +1261,13 @@ export const homeHighlights: Product[] = [
   },
 ];
 
-const allProducts = [...products, ...homeHighlights];
+export const homeHighlights: Product[] = highlightFallbacks.map(
+  (fallback) => products.find((product) => product.image === fallback.image) ?? fallback,
+);
+
+const allProducts = [...products, ...homeHighlights.filter(
+  (product) => !products.some((item) => item.id === product.id),
+)];
 
 export function getProductById(id: number): Product | undefined {
   return allProducts.find((product) => product.id === id);
@@ -1265,6 +1279,6 @@ export function getRelatedProducts(product: Product, limit = 4): Product[] {
     .slice(0, limit);
 }
 
-export function getCategory(slug: Product["category"]) {
+export function getCategory(slug: string | undefined) {
   return categories.find((category) => category.slug === slug);
 }

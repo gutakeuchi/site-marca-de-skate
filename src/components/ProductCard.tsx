@@ -1,7 +1,9 @@
-import { Card, CardActionArea, CardContent, CardMedia, Box, Typography } from "@mui/material";
+import { Card, CardActionArea, CardContent, Box, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import type { Product } from "../data/catalog";
-import { assetUrl, formatPrice } from "../utils/assets";
+import { formatPrice } from "../utils/assets";
+import { productPath } from "../utils/paths";
+import ProductImage from "./ProductImage";
 
 type ProductCardProps = {
   product: Product;
@@ -28,7 +30,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       <CardActionArea
         component={RouterLink}
-        to={`/produto/${product.id}`}
+        to={productPath(product.id)}
         sx={{
           height: "100%",
           display: "flex",
@@ -36,18 +38,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           alignItems: "stretch",
         }}
       >
-        <Box sx={{ position: "relative", overflow: "hidden", bgcolor: "#f3f3f3" }}>
-          <CardMedia
-            className="product-image"
-            component="img"
-            image={assetUrl(product.image)}
+        <Box sx={{ position: "relative" }}>
+          <ProductImage
+            src={product.image}
             alt={product.name}
-            sx={{
-              height: { xs: 210, sm: 250, md: 280 },
-              objectFit: "contain",
-              p: 2,
-              transition: "transform 0.45s ease",
-            }}
+            height={{ xs: 320, sm: 250, md: 280 }}
           />
           <Box
             className="product-cta"

@@ -3,17 +3,20 @@ import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { banners } from "../data/catalog";
 import { assetUrl } from "../utils/assets";
+import { categoryPath } from "../utils/paths";
 
 export default function HeroCarousel() {
   const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
+    if (paused) return undefined;
     const timer = window.setInterval(() => {
       setCurrent((index) => (index + 1) % banners.length);
     }, 4500);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [paused]);
 
   return (
     <Box
@@ -24,6 +27,8 @@ export default function HeroCarousel() {
         minHeight: 380,
         bgcolor: "#000",
       }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
       {banners.map((banner, index) => (
         <Box
@@ -31,6 +36,7 @@ export default function HeroCarousel() {
           component="img"
           src={assetUrl(banner.src)}
           alt={banner.alt}
+          loading={index === 0 ? "eager" : "lazy"}
           sx={{
             position: "absolute",
             inset: 0,
@@ -88,7 +94,7 @@ export default function HeroCarousel() {
             variant="contained"
             size="large"
             component={RouterLink}
-            to="/categoria/skate"
+            to={categoryPath("skate")}
             sx={{ px: 3.5, py: 1.2 }}
           >
             Shop skate
@@ -97,7 +103,7 @@ export default function HeroCarousel() {
             variant="outlined"
             size="large"
             component={RouterLink}
-            to="/categoria/tenis-nike"
+            to={categoryPath("tenis-nike")}
             sx={{ px: 3.5, py: 1.2, color: "#fff", borderColor: "rgba(255,255,255,0.5)" }}
           >
             Ver tênis

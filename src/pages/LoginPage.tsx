@@ -1,22 +1,20 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { FormEvent, useState } from "react";
+import { Alert, Box, Button, Container, Stack, TextField, Typography } from "@mui/material";
+import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../auth";
-import { assetUrl } from "../utils/assets";
+import { isLoggedIn, login } from "../auth";
+import BrandLogo from "../components/BrandLogo";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  usePageTitle("Login");
+
+  useEffect(() => {
+    if (isLoggedIn()) navigate("/", { replace: true });
+  }, [navigate]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,12 +38,9 @@ export default function LoginPage() {
     >
       <Container maxWidth="xs">
         <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Box
-            component="img"
-            src={assetUrl("IMG/inicio/LOGO.png")}
-            alt="Logo Wolf Board"
-            sx={{ width: 96, height: 96, objectFit: "contain", mb: 2 }}
-          />
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+            <BrandLogo size={96} />
+          </Box>
           <Typography variant="subtitle2" sx={{ color: "primary.main", mb: 1 }}>
             Members only
           </Typography>

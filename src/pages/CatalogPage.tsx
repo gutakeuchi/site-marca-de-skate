@@ -1,27 +1,33 @@
-import { Alert, Box, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
 import ProductGrid from "../components/ProductGrid";
-import { categories, products } from "../data/catalog";
+import { getCategory, products } from "../data/catalog";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function CatalogPage() {
   const { slug } = useParams();
-
-  const category = useMemo(
-    () => categories.find((item) => item.slug === slug),
-    [slug],
-  );
-
+  const category = getCategory(slug);
   const items = useMemo(
     () => products.filter((product) => product.category === slug),
     [slug],
   );
 
+  usePageTitle(category?.title);
+
   if (!category) {
     return (
-      <Container sx={{ py: 8 }}>
-        <Alert severity="warning">Categoria não encontrada.</Alert>
-      </Container>
+      <EmptyState
+        eyebrow="404"
+        title="Categoria sumiu"
+        description="Essa prateleira não existe. Volta para a home e escolhe outra linha."
+        action={
+          <Button variant="contained" component={RouterLink} to="/">
+            Ir para a loja
+          </Button>
+        }
+      />
     );
   }
 

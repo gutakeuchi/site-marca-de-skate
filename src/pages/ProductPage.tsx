@@ -16,8 +16,11 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { useCart } from "../cart";
+import EmptyState from "../components/EmptyState";
 import ProductGrid from "../components/ProductGrid";
-import { MinusIcon, PlusIcon } from "../components/Icons";
+import ProductImage from "../components/ProductImage";
+import QtyStepper from "../components/QtyStepper";
+import SectionHeading from "../components/SectionHeading";
 import { getCategory, getProductById, getRelatedProducts } from "../data/catalog";
 import {
   getDescription,
@@ -27,7 +30,9 @@ import {
   getSku,
   getSpecs,
 } from "../data/productInfo";
-import { assetUrl, formatPrice } from "../utils/assets";
+import { usePageTitle } from "../hooks/usePageTitle";
+import { formatPrice } from "../utils/assets";
+import { categoryPath } from "../utils/paths";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -37,25 +42,32 @@ export default function ProductPage() {
   const [size, setSize] = useState(sizes.length === 1 ? sizes[0] : "");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setQty(1);
-    const nextSizes = product ? getSizes(product.category) : [];
-    setSize(nextSizes.length === 1 ? nextSizes[0] : "");
-  }, [id, product]);
-
   const category = product ? getCategory(product.category) : undefined;
   const related = useMemo(
     () => (product ? getRelatedProducts(product) : []),
     [product],
   );
 
+  usePageTitle(product?.name);
+
+  useEffect(() => {
+    setQty(1);
+    const nextSizes = product ? getSizes(product.category) : [];
+    setSize(nextSizes.length === 1 ? nextSizes[0] : "");
+  }, [id, product]);
+
   if (!product || !category) {
     return (
-      <Container sx={{ py: 8 }}>
-        <Alert severity="warning">Produto não encontrado.</Alert>
-      </Container>
+      <EmptyState
+        eyebrow="404"
+        title="Produto não encontrado"
+        description="Esse drop saiu da prateleira. Volta para a loja e escolhe outro."
+        action={
+          <Button variant="contained" component={RouterLink} to="/">
+            Ir para a loja
+          </Button>
+        }
+      />
     );
   }
 
@@ -76,7 +88,7 @@ export default function ProductPage() {
           </Link>
           <Link
             component={RouterLink}
-            to={`/categoria/${category.slug}`}
+            to={categoryPath(category.slug)}
             underline="hover"
             color="inherit"
           >
@@ -89,23 +101,14 @@ export default function ProductPage() {
 
         <Grid container spacing={{ xs: 3, md: 6 }}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box
-              sx={{
-                bgcolor: "#f3f3f3",
-                minHeight: { xs: 360, md: 560 },
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                p: { xs: 3, md: 5 },
-              }}
-            >
-              <Box
-                component="img"
-                src={assetUrl(product.image)}
-                alt={product.name}
-                sx={{ width: "100%", maxHeight: 520, objectFit: "contain" }}
-              />
-            </Box>
+            <ProductImage
+              src={product.image}
+              alt={product.name}
+              height={{ xs: 360, md: 520 }}
+              padding={{ xs: 3, md: 5 }}
+              lazy={false}
+              sx={{ minHeight: { xs: 360, md: 560 } }}
+            />
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
@@ -150,8 +153,8 @@ export default function ProductPage() {
                   letterSpacing: "0.08em",
                 },
                 "& .Mui-selected": {
-                  bgcolor: "#e10600 !important",
-                  borderColor: "#e10600 !important",
+                  bgcolor: "primary.main !important",
+                  borderColor: "primary.main !important",
                   color: "#fff !important",
                 },
               }}
@@ -164,29 +167,7 @@ export default function ProductPage() {
             </ToggleButtonGroup>
 
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                sx={{ border: "1px solid rgba(255,255,255,0.2)" }}
-              >
-                <Button
-                  color="inherit"
-                  onClick={() => setQty((value) => Math.max(1, value - 1))}
-                  aria-label="Diminuir quantidade"
-                  sx={{ minWidth: 44 }}
-                >
-                  <MinusIcon fontSize="small" />
-                </Button>
-                <Typography sx={{ width: 32, textAlign: "center" }}>{qty}</Typography>
-                <Button
-                  color="inherit"
-                  onClick={() => setQty((value) => value + 1)}
-                  aria-label="Aumentar quantidade"
-                  sx={{ minWidth: 44 }}
-                >
-                  <PlusIcon fontSize="small" />
-                </Button>
-              </Stack>
+              <QtyStepper value={qty} onChange={setQty} />
               <Button
                 variant="contained"
                 size="large"
@@ -226,12 +207,7 @@ export default function ProductPage() {
 
         {related.length > 0 ? (
           <Box sx={{ mt: { xs: 8, md: 12 } }}>
-            <Typography variant="subtitle2" sx={{ color: "primary.main", mb: 1 }}>
-              Complete o setup
-            </Typography>
-            <Typography variant="h3" sx={{ mb: 3, fontSize: { xs: 36, md: 48 } }}>
-              Relacionados
-            </Typography>
+            <SectionHeading eyebrow="Complete o setup" title="Relacionados" />
             <ProductGrid products={related} />
           </Box>
         ) : null}
@@ -239,14 +215,19 @@ export default function ProductPage() {
 
       <Snackbar
         open={added}
-        autoHideDuration={2500}
+        autoHideDuration={3500}
         onClose={() => setAdded(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           severity="success"
           onClose={() => setAdded(false)}
-          sx={{ bgcolor: "#111", color: "#fff", border: "1px solid #e10600" }}
+          action={
+            <Button color="inherit" size="small" component={RouterLink} to="/carrinho">
+              Ver sacola
+            </Button>
+          }
+          sx={{ bgcolor: "#111", color: "#fff", border: "1px solid", borderColor: "primary.main" }}
         >
           Produto adicionado ao carrinho.
         </Alert>
