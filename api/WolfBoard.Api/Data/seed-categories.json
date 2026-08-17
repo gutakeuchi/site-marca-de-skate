@@ -1,0 +1,97 @@
+[
+  {
+    "slug": "masculino-camisas",
+    "title": "Camisetas",
+    "group": "Masculino"
+  },
+  {
+    "slug": "masculino-calcas",
+    "title": "Calças",
+    "group": "Masculino"
+  },
+  {
+    "slug": "masculino-moletons",
+    "title": "Moletons",
+    "group": "Masculino"
+  },
+  {
+    "slug": "masculino-bermudas",
+    "title": "Bermudas",
+    "group": "Masculino"
+  },
+  {
+    "slug": "feminino-camisas",
+    "title": "Camisetas",
+    "group": "Feminino"
+  },
+  {
+    "slug": "feminino-calcas",
+    "title": "Calças",
+    "group": "Feminino"
+  },
+  {
+    "slug": "feminino-moletons",
+    "title": "Moletons",
+    "group": "Feminino"
+  },
+  {
+    "slug": "feminino-cropped",
+    "title": "Cropped",
+    "group": "Feminino"
+  },
+  {
+    "slug": "tenis-adidas",
+    "title": "Adidas",
+    "group": "Tênis"
+  },
+  {
+    "slug": "tenis-vans",
+    "title": "Vans",
+    "group": "Tênis"
+  },
+  {
+    "slug": "tenis-nike",
+    "title": "Nike SB",
+    "group": "Tênis"
+  },
+  {
+    "slug": "tenis-dc",
+    "title": "DC",
+    "group": "Tênis"
+  },
+  {
+    "slug": "tenis-ous",
+    "title": "OUS",
+    "group": "Tênis"
+  },
+  {
+    "slug": "skate",
+    "title": "Skate",
+    "group": "Skate"
+  },
+  {
+    "slug": "shape",
+    "title": "Shape",
+    "group": "Skate"
+  },
+  {
+    "slug": "lixa",
+    "title": "Lixa",
+    "group": "Skate"
+  },
+  {
+    "slug": "truck",
+    "title": "Truck",
+    "group": "Skate"
+  },
+  {
+    "slug": "rodas",
+    "title": "Rodas",
+    "group": "Skate"
+  },
+  {
+    "slug": "rolamento",
+    "title": "Rolamento",
+    "group": "Skate"
+  }
+]

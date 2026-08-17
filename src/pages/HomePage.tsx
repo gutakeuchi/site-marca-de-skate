@@ -1,26 +1,14 @@
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
+import { useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { useCatalog } from "../catalog";
 import HeroCarousel from "../components/HeroCarousel";
 import ProductGrid from "../components/ProductGrid";
 import SectionHeading from "../components/SectionHeading";
-import { homeHighlights, products, type Product } from "../data/catalog";
+import { homeHighlights, type Product } from "../data/catalog";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { assetUrl } from "../utils/assets";
 import { categoryPath } from "../utils/paths";
-
-const featuredShirts = products.filter((product) =>
-  ["IMG/camisasf/6.png", "IMG/camisasf/7.png", "IMG/camisasf/5.png"].includes(
-    product.image,
-  ),
-);
-
-const featuredShapes = products.filter((product) =>
-  [
-    "IMG/shape.png/shape element trapped westgate.png",
-    "IMG/shape.png/shape itachi.jpg",
-    "IMG/shape.png/shape-primor.jpeg",
-  ].includes(product.image),
-);
 
 const departments = [
   {
@@ -47,6 +35,36 @@ const departments = [
 
 export default function HomePage() {
   usePageTitle();
+  const { products } = useCatalog();
+
+  const featuredShirts = useMemo(
+    () =>
+      products.filter((product) =>
+        ["IMG/camisasf/6.png", "IMG/camisasf/7.png", "IMG/camisasf/5.png"].includes(
+          product.image,
+        ),
+      ),
+    [products],
+  );
+
+  const featuredShapes = useMemo(
+    () =>
+      products.filter((product) =>
+        [
+          "IMG/shape.png/shape element trapped westgate.png",
+          "IMG/shape.png/shape itachi.jpg",
+          "IMG/shape.png/shape-primor.jpeg",
+        ].includes(product.image),
+      ),
+    [products],
+  );
+
+  const highlightProducts = useMemo(() => {
+    const byImage = new Map(products.map((product) => [product.image, product]));
+    return homeHighlights
+      .map((fallback) => byImage.get(fallback.image) ?? fallback)
+      .filter((product, index, list) => list.findIndex((item) => item.id === product.id) === index);
+  }, [products]);
 
   return (
     <Box>
@@ -122,7 +140,7 @@ export default function HomePage() {
           eyebrow="On foot"
           title="Tênis"
           slug="tenis-adidas"
-          products={homeHighlights}
+          products={highlightProducts}
         />
       </Container>
     </Box>

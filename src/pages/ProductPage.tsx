@@ -21,7 +21,8 @@ import ProductGrid from "../components/ProductGrid";
 import ProductImage from "../components/ProductImage";
 import QtyStepper from "../components/QtyStepper";
 import SectionHeading from "../components/SectionHeading";
-import { getCategory, getProductById, getRelatedProducts } from "../data/catalog";
+import { useCatalog } from "../catalog";
+import { getCategory } from "../data/catalog";
 import {
   getDescription,
   getInstallments,
@@ -36,6 +37,7 @@ import { categoryPath } from "../utils/paths";
 
 export default function ProductPage() {
   const { id } = useParams();
+  const { getProductById, getRelatedProducts } = useCatalog();
   const product = getProductById(Number(id));
   const { addItem } = useCart();
   const sizes = product ? getSizes(product.category) : [];
@@ -45,7 +47,7 @@ export default function ProductPage() {
   const category = product ? getCategory(product.category) : undefined;
   const related = useMemo(
     () => (product ? getRelatedProducts(product) : []),
-    [product],
+    [product, getRelatedProducts],
   );
 
   usePageTitle(product?.name);
@@ -71,9 +73,9 @@ export default function ProductPage() {
     );
   }
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!product || !size) return;
-    addItem(product, size, qty);
+    await addItem(product, size, qty);
     setAdded(true);
   }
 

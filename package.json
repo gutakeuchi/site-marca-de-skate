@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api": "dotnet run --project api/WolfBoard.Api --launch-profile http"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
