@@ -65,6 +65,12 @@ O Vite faz proxy de `/api` → `http://localhost:5271`.
 
 Login no site passa a usar a API (JWT). Carrinho sincroniza no PostgreSQL quando o usuário está autenticado; sem login continua no `localStorage`.
 
+## Deploy na Azure (produção)
+
+Guia completo passo a passo: **[docs/azure-deploy.md](../docs/azure-deploy.md)**
+
+Inclui App Service + PostgreSQL + Static Web Apps + GitHub Actions.
+
 ## Exemplo de login
 
 ```bash
