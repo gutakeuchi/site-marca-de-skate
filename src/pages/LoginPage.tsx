@@ -2,30 +2,39 @@ import { Alert, Box, Button, Container, Stack, TextField, Typography } from "@mu
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn, login } from "../auth";
+import { useCart } from "../cart";
 import BrandLogo from "../components/BrandLogo";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { refresh } = useCart();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   usePageTitle("Login");
 
   useEffect(() => {
     if (isLoggedIn()) navigate("/", { replace: true });
   }, [navigate]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setSubmitting(true);
 
-    if (login(email, password)) {
-      navigate("/");
-      return;
+    try {
+      if (await login(email, password)) {
+        await refresh();
+        navigate("/");
+        return;
+      }
+
+      setError("Usuário ou senha inválidos.");
+    } finally {
+      setSubmitting(false);
     }
-
-    setError("Usuário ou senha inválidos.");
   }
 
   return (
@@ -78,8 +87,8 @@ export default function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
-            <Button type="submit" variant="contained" size="large">
-              Entrar
+            <Button type="submit" variant="contained" size="large" disabled={submitting}>
+              {submitting ? "Entrando..." : "Entrar"}
             </Button>
           </Stack>
         </Box>

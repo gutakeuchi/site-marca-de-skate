@@ -2,13 +2,15 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
+import { api, getToken } from "./api/client";
 import type { Product } from "./data/catalog";
 
-export type CartItem = {
+type CartItem = {
   productId: number;
   name: string;
   image: string;
@@ -21,16 +23,17 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   total: number;
-  addItem: (product: Product, size: string, qty: number) => void;
-  updateQty: (productId: number, size: string, qty: number) => void;
-  removeItem: (productId: number, size: string) => void;
-  clear: () => void;
+  addItem: (product: Product, size: string, qty: number) => Promise<void>;
+  updateQty: (productId: number, size: string, qty: number) => Promise<void>;
+  removeItem: (productId: number, size: string) => Promise<void>;
+  clear: () => Promise<void>;
+  refresh: () => Promise<void>;
 };
 
 const STORAGE_KEY = "wolf-board-cart";
 const CartContext = createContext<CartContextValue | null>(null);
 
-function readCart(): CartItem[] {
+function readLocalCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? (JSON.parse(raw) as CartItem[]) : [];
@@ -39,67 +42,131 @@ function readCart(): CartItem[] {
   }
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(() => readCart());
+function writeLocalCart(items: CartItem[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
 
-  const persist = useCallback((updater: (current: CartItem[]) => CartItem[]) => {
+function fromApi(items: CartItem[]): CartItem[] {
+  return items.map((item) => ({
+    productId: item.productId,
+    name: item.name,
+    image: item.image,
+    price: item.price,
+    size: item.size,
+    qty: item.qty,
+  }));
+}
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>(() => readLocalCart());
+
+  const refresh = useCallback(async () => {
+    if (!getToken()) {
+      setItems(readLocalCart());
+      return;
+    }
+
+    try {
+      const cart = await api.cart.get();
+      const next = fromApi(cart.items);
+      setItems(next);
+      writeLocalCart(next);
+    } catch {
+      setItems(readLocalCart());
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const addItem = useCallback(
+    async (product: Product, size: string, qty: number) => {
+      if (getToken()) {
+        const cart = await api.cart.addItem(product.id, size, qty);
+        const next = fromApi(cart.items);
+        setItems(next);
+        writeLocalCart(next);
+        return;
+      }
+
+      setItems((current) => {
+        const index = current.findIndex(
+          (item) => item.productId === product.id && item.size === size,
+        );
+        const next =
+          index >= 0
+            ? current.map((item, itemIndex) =>
+                itemIndex === index ? { ...item, qty: item.qty + qty } : item,
+              )
+            : [
+                ...current,
+                {
+                  productId: product.id,
+                  name: product.name,
+                  image: product.image,
+                  price: product.price,
+                  size,
+                  qty,
+                },
+              ];
+        writeLocalCart(next);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const updateQty = useCallback(async (productId: number, size: string, qty: number) => {
+    if (getToken()) {
+      const cart = await api.cart.setQty(productId, size, qty);
+      const next = fromApi(cart.items);
+      setItems(next);
+      writeLocalCart(next);
+      return;
+    }
+
     setItems((current) => {
-      const next = updater(current);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      const next = current
+        .map((item) =>
+          item.productId === productId && item.size === size ? { ...item, qty } : item,
+        )
+        .filter((item) => item.qty > 0);
+      writeLocalCart(next);
       return next;
     });
   }, []);
 
-  const addItem = useCallback(
-    (product: Product, size: string, qty: number) => {
-      persist((current) => {
-        const index = current.findIndex(
-          (item) => item.productId === product.id && item.size === size,
-        );
-        if (index >= 0) {
-          return current.map((item, itemIndex) =>
-            itemIndex === index ? { ...item, qty: item.qty + qty } : item,
-          );
-        }
-        return [
-          ...current,
-          {
-            productId: product.id,
-            name: product.name,
-            image: product.image,
-            price: product.price,
-            size,
-            qty,
-          },
-        ];
-      });
-    },
-    [persist],
-  );
+  const removeItem = useCallback(async (productId: number, size: string) => {
+    if (getToken()) {
+      const cart = await api.cart.removeItem(productId, size);
+      const next = fromApi(cart.items);
+      setItems(next);
+      writeLocalCart(next);
+      return;
+    }
 
-  const updateQty = useCallback(
-    (productId: number, size: string, qty: number) => {
-      persist((current) =>
-        current
-          .map((item) =>
-            item.productId === productId && item.size === size ? { ...item, qty } : item,
-          )
-          .filter((item) => item.qty > 0),
+    setItems((current) => {
+      const next = current.filter(
+        (item) => !(item.productId === productId && item.size === size),
       );
-    },
-    [persist],
-  );
+      writeLocalCart(next);
+      return next;
+    });
+  }, []);
 
-  const removeItem = useCallback(
-    (productId: number, size: string) => {
-      persist((current) =>
-        current.filter((item) => !(item.productId === productId && item.size === size)),
-      );
-    },
-    [persist],
-  );
+  const clear = useCallback(async () => {
+    if (getToken()) {
+      const cart = await api.cart.clear();
+      const next = fromApi(cart.items);
+      setItems(next);
+      writeLocalCart(next);
+      return;
+    }
 
-  const clear = useCallback(() => persist(() => []), [persist]);
+    writeLocalCart([]);
+    setItems([]);
+  }, []);
 
   const value = useMemo<CartContextValue>(
     () => ({
@@ -110,8 +177,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateQty,
       removeItem,
       clear,
+      refresh,
     }),
-    [items, addItem, updateQty, removeItem, clear],
+    [items, addItem, updateQty, removeItem, clear, refresh],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

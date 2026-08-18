@@ -1,18 +1,17 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
+import { useCatalog } from "../catalog";
 import EmptyState from "../components/EmptyState";
 import ProductGrid from "../components/ProductGrid";
-import { getCategory, products } from "../data/catalog";
+import { getCategory } from "../data/catalog";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function CatalogPage() {
   const { slug } = useParams();
   const category = getCategory(slug);
-  const items = useMemo(
-    () => products.filter((product) => product.category === slug),
-    [slug],
-  );
+  const { getByCategory } = useCatalog();
+  const items = useMemo(() => getByCategory(slug ?? ""), [getByCategory, slug]);
 
   usePageTitle(category?.title);
 
